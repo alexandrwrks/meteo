@@ -1,3 +1,5 @@
+from typing import List
+
 import httpx
 from app.schemas import GeoParams, CityParams
 
@@ -34,6 +36,23 @@ class MeteoAPIClient:
 
 		return response.json()
 
-	async def get_meteo_forecast(self, latitude: float, longitude: float):
-		...
+	async def get_meteo_forecast(
+			self,
+			latitude: float,
+			longitude: float,
+			client: httpx.AsyncClient,
+			fields: List[str] = ["temperature_2m", "wind_speed_10m", "precipitation", "relative_humidity_2m"],
+	):
+		response = await client.get(
+			self.base_url,
+			params={
+				"latitude": latitude,
+				"longitude": longitude,
+				"hourly": fields,
+				"forecast_days": 1,
+			}
+		)
+
+		return response.json()
+
 meteo_api_client = MeteoAPIClient()
