@@ -3,10 +3,10 @@ from enum import StrEnum
 from pydantic import BaseModel, Field
 
 
-class ParametersType(StrEnum):
-    temperature_2m = "temperature_2m"
-    relative_humidity_2m = "relative_humidity_2m"
-    wind_speed_10m = "wind_speed_10m"
+class WeatherField(StrEnum):
+    temperature = "temperature"
+    humidity = "humidity"
+    wind_speed = "wind_speed"
     precipitation = "precipitation"
 
 

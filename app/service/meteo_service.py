@@ -1,3 +1,5 @@
+from typing import List
+
 import httpx
 
 from datetime import time
@@ -7,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.api import meteo_api_client
 from app.repo.meteo_repo import MeteoRepo
-from app.schemas import GeoParams, ResponseCurrentMeteoSchema, CityParams, ResponseCitySchema
+from app.schemas import GeoParams, ResponseCurrentMeteoSchema, CityParams, ResponseCitySchema, WeatherField
 
 
 class MeteoService:
@@ -47,8 +49,8 @@ class MeteoService:
             longitude=params.longitude,
         )
 
-    async def get_forecast(self, city_name: str, time: time):
-        forecast = await self.meteo_repo.get_forecast(city_name, time)
+    async def get_forecast(self, city_name: str, forecast: time, params: List[WeatherField]):
+        forecast = await self.meteo_repo.get_forecast(city_name, forecast, params)
         if forecast is None:
             raise HTTPException(status_code=404, detail="City not found")
 

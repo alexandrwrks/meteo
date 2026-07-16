@@ -23,21 +23,14 @@ async def update_all_forecasts():
 
                     hourly = forecast['hourly']
                     conditions = []
-                    for i in range(len(hourly["time"])):
-                        time = hourly['time'][i]
-                        temperature = hourly["temperature_2m"][i]
-                        wind_speed = hourly["wind_speed_10m"][i]
-                        precipitation = hourly["precipitation"][i]
-                        humidity = hourly["relative_humidity_2m"][i]
-                        # print(
-                        #     f"Время: {hourly['time'][i]}\n"
-                        #     f"Температура: {temperature} °C\n"
-                        #     f"Скорость ветра: {wind_speed} km/h\n"
-                        #     f"Осадки: {precipitation} mm\n"
-                        #     f"Влажность: {humidity} %\n"
-                        # )
-
-                        conditions.append([time, temperature, wind_speed, precipitation, humidity])
+                    for forecast_time, temperature, humidity, wind_speed, precipitation in zip(
+                            hourly["time"],
+                            hourly["temperature_2m"],
+                            hourly["relative_humidity_2m"],
+                            hourly["wind_speed_10m"],
+                            hourly["precipitation"],
+                    ):
+                        conditions.append([forecast_time, temperature, wind_speed, precipitation, humidity])
 
                     print(len(conditions))
                     print(conditions)

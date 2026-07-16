@@ -1,9 +1,10 @@
 from datetime import time
+from typing import List
 
 from fastapi import APIRouter, Depends, Query
 
 from app.deps import get_meteo_service
-from app.schemas import GeoParams, ResponseCurrentMeteoSchema, CityParams, ResponseCitySchema
+from app.schemas import GeoParams, ResponseCurrentMeteoSchema, CityParams, ResponseCitySchema, WeatherField
 from app.service.meteo_service import MeteoService
 
 router = APIRouter(
@@ -36,6 +37,7 @@ async def add_city(
 async def get_forecast(
         city_name: str = Query(min_length=1),
         time: time = Query(...),
+        params: List[WeatherField] = Query(...),
         meteo_service: MeteoService = Depends(get_meteo_service),
 ):
-    return await meteo_service.get_forecast(city_name, time)
+    return await meteo_service.get_forecast(city_name, time, params)

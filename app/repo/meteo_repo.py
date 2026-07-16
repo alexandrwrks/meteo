@@ -1,14 +1,21 @@
 from datetime import time
 from typing import List
 
-from sqlalchemy import select, and_, insert
+from sqlalchemy import select, and_, insert, Select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Cities, WeatherHourlyForecast
-from app.schemas import GeoParams, CityParams
+from app.schemas import GeoParams, CityParams, WeatherField
 
 
 class MeteoRepo:
+    FIELD_MAPPING = {
+        WeatherField.temperature: WeatherHourlyForecast.temperature,
+        WeatherField.humidity: WeatherHourlyForecast.humidity,
+        WeatherField.wind_speed: WeatherHourlyForecast.wind_speed,
+        WeatherField.precipitation: WeatherHourlyForecast.precipitation,
+    }
+
     def __init__(self, session: AsyncSession):
         self.session = session
 
@@ -60,14 +67,18 @@ class MeteoRepo:
 
         return result.scalar_one()
 
-    async def get_forecast(self, city_name: str, time: time) -> WeatherHourlyForecast | None:
-        result = await self.session.execute(
-            select(WeatherHourlyForecast)
+    async def get_forecast(self, city_name: str, forecast: time, params: List[WeatherField]) -> WeatherHourlyForecast | None:
+        columns = [self.FIELD_MAPPING[field] for field in params]
+
+        query = (
+            select(*columns)
             .join(Cities, Cities.id == WeatherHourlyForecast.city_id)
             .where(
                 Cities.name == city_name,
-                WeatherHourlyForecast.forecast_time == time,
+                WeatherHourlyForecast.forecast_time == forecast,
             )
         )
+
+        result = await self.session.execute(query)
 
         return result.scalar_one_or_none()
