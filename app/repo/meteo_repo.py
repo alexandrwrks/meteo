@@ -5,7 +5,7 @@ from sqlalchemy import select, and_, insert, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Cities, WeatherHourlyForecast
-from app.utils.schemas.schemas import GeoParams, CityParams, WeatherField
+from app.utils.schemas.request import GeoParams, CityParams, WeatherField
 
 
 class MeteoRepo:

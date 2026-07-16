@@ -3,14 +3,15 @@ from typing import List
 
 from fastapi import APIRouter, Depends, Query
 
+from app.db.models import Users
 from app.service.meteo_service import MeteoService
-from app.utils.deps import get_meteo_service
-from app.utils.schemas.schemas import (
-    CityParams,
-    GeoParams,
+from app.utils.deps import get_meteo_service, get_current_user
+from app.utils.schemas.request import CityParams, GeoParams, WeatherField
+
+from app.utils.schemas.response import (
     ResponseCitySchema,
     ResponseCurrentMeteoSchema,
-    WeatherField, ResponseWeatherSchema
+    ResponseWeatherSchema
 )
 
 router = APIRouter(
@@ -22,14 +23,18 @@ router = APIRouter(
 @router.get("/current", response_model=ResponseCurrentMeteoSchema)
 async def get_meteo_by_coordinate(
     params: GeoParams = Depends(GeoParams),
+    current_user: Users = Depends(get_current_user),
     meteo_service: MeteoService = Depends(get_meteo_service),
 ):
     return await meteo_service.get_current_meteo_by_coordinate(params)
 
 
 @router.get("/cities")
-async def get_cities(meteo_service: MeteoService = Depends(get_meteo_service)):
-    return await meteo_service.get_cities()
+async def get_cities(
+    current_user: Users = Depends(get_current_user),
+    meteo_service: MeteoService = Depends(get_meteo_service)
+):
+    return await meteo_service.get_cities(current_user.id)
 
 
 @router.post("/city", response_model=ResponseCitySchema)

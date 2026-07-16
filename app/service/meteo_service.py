@@ -1,4 +1,4 @@
-from datetime import time, datetime, date
+from datetime import time
 from typing import List
 
 import httpx
@@ -8,10 +8,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.api import meteo_api_client
 from app.repo.meteo_repo import MeteoRepo
 from app.utils.logger import logger
-from app.utils.schemas.schemas import (CityParams, GeoParams,
-                                       ResponseCitySchema,
-                                       ResponseCurrentMeteoSchema,
-                                       WeatherField, ResponseWeatherSchema)
+from app.utils.schemas.request import CityParams, GeoParams, WeatherField
+
+from app.utils.schemas.response import (
+    ResponseCitySchema,
+    ResponseCurrentMeteoSchema,
+    ResponseWeatherSchema
+)
+from app.utils.upgrade_time import round_to_hour, floor_to_hour
 
 
 class MeteoService:
@@ -31,7 +35,7 @@ class MeteoService:
             wind_speed_10m=current_data.get("wind_speed_10m"),
         )
 
-    async def get_cities(self):
+    async def get_cities(self, user_id: int):
         cities = await self.meteo_repo.get_cities()
         if not cities:
             return []
@@ -60,11 +64,7 @@ class MeteoService:
             logger.error(f"City {city_name} forecast is empty")
             raise HTTPException(status_code=404, detail="City not found")
 
-        forecast_datetime = datetime.combine(
-            date.today(),
-            forecast
-        )
-
+        forecast_datetime = floor_to_hour(forecast)
         forecast = await self.meteo_repo.get_forecast(city_name, forecast_datetime, params)
         if forecast is None:
             logger.error(f"City {city_name} forecast is empty")

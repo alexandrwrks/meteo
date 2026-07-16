@@ -1,6 +1,6 @@
 import httpx
 
-from app.utils.schemas.schemas import CityParams, GeoParams
+from app.utils.schemas.request import CityParams, GeoParams
 
 
 url = "https://api.open-meteo.com/v1/forecast"
