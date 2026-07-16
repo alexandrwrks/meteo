@@ -21,6 +21,7 @@ from app.utils.upgrade_time import round_to_hour, floor_to_hour
 class MeteoService:
     def __init__(self, session: AsyncSession):
         self.meteo_repo = MeteoRepo(session)
+        self.session = session
 
     async def get_current_meteo_by_coordinate(self, params: GeoParams) -> ResponseCurrentMeteoSchema:
         async with httpx.AsyncClient() as client:
@@ -36,21 +37,22 @@ class MeteoService:
         )
 
     async def get_cities(self, user_id: int):
-        cities = await self.meteo_repo.get_cities()
+        cities = await self.meteo_repo.get_user_cities(user_id)
         if not cities:
             return []
 
         return cities
 
-    async def add_city_parameters(self, params: CityParams):
-        exists_city = await self.meteo_repo.get_city_by_coordinate(params)
+    async def add_city_parameters(self, params: CityParams, user_id: int) -> ResponseCitySchema:
+        exists_city = await self.meteo_repo.get_city_by_coordinate(params, user_id)
         if exists_city:
             logger.error(f"City {params.city_name} already exists")
-            raise HTTPException(status_code=400, detail="City already exists")
+            raise HTTPException(status_code=404, detail="City already exists")
 
-        city_id = await self.meteo_repo.add_city_with_parameters(params)
+        city_id = await self.meteo_repo.add_city_with_parameters(params, user_id)
 
         logger.info("Successful addition of a city")
+        await self.session.commit()
         return ResponseCitySchema(
             id=city_id,
             name=params.city_name,
@@ -58,8 +60,10 @@ class MeteoService:
             longitude=params.longitude,
         )
 
-    async def get_forecast(self, city_name: str, forecast: time, params: List[WeatherField]) -> ResponseWeatherSchema:
-        city = await self.meteo_repo.get_city_by_name(city_name)
+    async def get_forecast(
+            self, city_name: str, forecast: time, params: List[WeatherField], user_id: int
+    ) -> ResponseWeatherSchema:
+        city = await self.meteo_repo.get_city_by_name(city_name, user_id)
         if city is None:
             logger.error(f"City {city_name} forecast is empty")
             raise HTTPException(status_code=404, detail="City not found")

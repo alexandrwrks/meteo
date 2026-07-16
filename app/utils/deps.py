@@ -32,4 +32,4 @@ async def get_current_user(
         credentials: HTTPAuthorizationCredentials = Depends(security),
         auth_service: AuthService = Depends(get_auth_service)
 ):
-    return auth_service.check_user(credentials.credentials)
+    return await auth_service.check_user(credentials.credentials)

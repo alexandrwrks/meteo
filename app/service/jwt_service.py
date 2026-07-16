@@ -18,7 +18,7 @@ class JWTService:
     def create_token(self, user_id: int) -> str:
         now = datetime.now(timezone.utc)
         payload = {
-            "sub": user_id,
+            "sub": str(user_id),
             "exp":  now + timedelta(minutes=self.ACCESS_TOKEN_EXPIRE_MINUTES),
             "iat": now,
         }

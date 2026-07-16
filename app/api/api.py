@@ -26,13 +26,13 @@ class MeteoAPIClient:
 
 		return response.json()
 
-	async def get_meteo_by_coordinates_with_city_name(self, parameters: CityParams, client: httpx.AsyncClient):
+	async def get_meteo_by_coordinates_with_city_name(self, latitude: float, longitude: float, client: httpx.AsyncClient):
 		response = await client.get(
 			self.base_url,
 			params={
-				"latitude": parameters.latitude,
-				"longitude": parameters.longitude,
-				"current": ["surface_pressure", "temperature_2m", "wind_speed_10m"],
+				"latitude": latitude,
+				"longitude": longitude,
+				"hourly": self.fields,
 				"timezone": "auto"
 			}
 		)

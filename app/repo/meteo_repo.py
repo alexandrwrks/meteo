@@ -32,12 +32,13 @@ class MeteoRepo:
 
         return result.scalars().all()
 
-    async def get_city_by_coordinate(self, params: CityParams) -> Cities | None:
+    async def get_city_by_coordinate(self, params: CityParams, user_id: int) -> Cities | None:
         result = await self.session.execute(
             select(Cities)
             .where(
                 and_(
                     Cities.name == params.city_name,
+                    Cities.user_id == user_id,
                     Cities.latitude == params.latitude,
                     Cities.longitude == params.longitude,
                 )
@@ -45,6 +46,15 @@ class MeteoRepo:
         )
 
         return result.scalar_one_or_none()
+
+    async def get_user_cities(self, user_id: int) -> List[Cities]:
+        result = await self.session.execute(
+            select(Cities)
+            .where(Cities.user_id == user_id)
+            .order_by(Cities.id)
+        )
+
+        return result.scalars().all()
 
     async def get_cities(self) -> List[Cities]:
         result = await self.session.execute(
@@ -54,10 +64,11 @@ class MeteoRepo:
 
         return result.scalars().all()
 
-    async def add_city_with_parameters(self, params: CityParams) -> int:
+    async def add_city_with_parameters(self, params: CityParams, user_id: int) -> int:
         result = await self.session.execute(
             insert(Cities)
             .values(
+                user_id=user_id,
                 name=params.city_name,
                 latitude=params.latitude,
                 longitude=params.longitude,
@@ -89,12 +100,23 @@ class MeteoRepo:
             .where(WeatherHourlyForecast.city_id == city_id)
         )
 
-    async def get_city_by_name(self, city_name: str) -> Cities | None:
+    async def get_city_by_name(self, city_name: str, user_id: int) -> Cities | None:
         result = await self.session.execute(
             select(Cities)
             .where(
+                Cities.user_id == user_id,
                 Cities.name == city_name
             )
         )
 
         return result.scalar_one_or_none()
+
+    async def get_city_by_id(self, city_id: int) -> Cities:
+        result = await self.session.execute(
+            select(Cities)
+            .where(
+                Cities.id == city_id
+            )
+        )
+
+        return result.scalar_one()

@@ -1,9 +1,11 @@
 from datetime import time
 from typing import List
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, BackgroundTasks
 
+from app.api.api import meteo_api_client
 from app.db.models import Users
+from app.scheduler.meteo_info import get_weather_hourly_forecast
 from app.service.meteo_service import MeteoService
 from app.utils.deps import get_meteo_service, get_current_user
 from app.utils.schemas.request import CityParams, GeoParams, WeatherField
@@ -39,10 +41,17 @@ async def get_cities(
 
 @router.post("/city", response_model=ResponseCitySchema)
 async def add_city(
+    background_task: BackgroundTasks,
     params: CityParams = Depends(CityParams),
+    current_user: Users = Depends(get_current_user),
     meteo_service: MeteoService = Depends(get_meteo_service),
 ):
-    return await meteo_service.add_city_parameters(params)
+    city = await meteo_service.add_city_parameters(params, current_user.id)
+    background_task.add_task(
+        get_weather_hourly_forecast,
+        city.id,
+    )
+    return city
 
 
 @router.get("/forecast", response_model=ResponseWeatherSchema)
@@ -50,6 +59,7 @@ async def get_forecast(
     city_name: str = Query(min_length=1),
     time: time = Query(...),
     params: List[WeatherField] = Query(...),
+    current_user: Users = Depends(get_current_user),
     meteo_service: MeteoService = Depends(get_meteo_service),
 ):
-    return await meteo_service.get_forecast(city_name, time, params)
+    return await meteo_service.get_forecast(city_name, time, params, current_user.id)
