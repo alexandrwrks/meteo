@@ -12,7 +12,7 @@ class AuthService:
     async def register(self, username: str) -> ResponseUserSchema:
         user_exists = await self.auth_repo.get_user(username)
         if user_exists is not None:
-            raise HTTPException(status_code=400, detail="User already exists")
+            raise HTTPException(status_code=404, detail="User already exists")
 
         user_id = await self.auth_repo.add_user(username)
         token = jwt_service.create_token(user_id)
