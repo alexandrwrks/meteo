@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from enum import StrEnum
 
 from pydantic import BaseModel, Field
@@ -31,3 +33,9 @@ class ResponseCitySchema(BaseModel):
     longitude: float
     message: str = "City added successfully"
 
+class ForecastData(BaseModel):
+    forecast_time: datetime
+    temperature: float
+    wind_speed: float
+    precipitation: float
+    humidity: float

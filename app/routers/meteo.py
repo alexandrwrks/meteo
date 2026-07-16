@@ -3,8 +3,8 @@ from typing import List
 
 from fastapi import APIRouter, Depends, Query
 
-from app.deps import get_meteo_service
-from app.schemas import GeoParams, ResponseCurrentMeteoSchema, CityParams, ResponseCitySchema, WeatherField
+from app.utils.deps import get_meteo_service
+from app.utils.schemas.schemas import GeoParams, ResponseCurrentMeteoSchema, CityParams, ResponseCitySchema, WeatherField
 from app.service.meteo_service import MeteoService
 
 router = APIRouter(

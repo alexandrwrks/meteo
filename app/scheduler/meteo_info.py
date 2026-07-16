@@ -1,10 +1,13 @@
 import asyncio
+from datetime import datetime
 
 import httpx
 
 from app.api.api import meteo_api_client
 from app.db.config import new_session
+from app.db.models import WeatherHourlyForecast
 from app.repo.meteo_repo import MeteoRepo
+from app.utils.logger import logger
 
 
 async def update_all_forecasts():
@@ -30,12 +33,21 @@ async def update_all_forecasts():
                             hourly["wind_speed_10m"],
                             hourly["precipitation"],
                     ):
-                        conditions.append([forecast_time, temperature, wind_speed, precipitation, humidity])
+                        conditions.append(
+                            WeatherHourlyForecast(
+                                city_id=city.id,
+                                forecast_time=datetime.fromisoformat(forecast_time),
+                                temperature=temperature,
+                                wind_speed=wind_speed,
+                                precipitation=precipitation,
+                                humidity=humidity,
+                            )
+                        )
 
-                    print(len(conditions))
-                    print(conditions)
+                    await meteo_repo.delete_forecast(city.id)
+                    session.add_all(conditions)
 
-                    # Обновление/добавление данных
+                    logger.info("Successfully updated meteo forecast")
 
 if __name__ == '__main__':
     asyncio.run(update_all_forecasts())

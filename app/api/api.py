@@ -1,13 +1,15 @@
 from typing import List
 
 import httpx
-from app.schemas import GeoParams, CityParams
+from app.utils.schemas.schemas import GeoParams, CityParams
 
 main_url = "https://open-meteo.com"
 url = "https://api.open-meteo.com/v1/forecast"
 
 
 class MeteoAPIClient:
+	fields = ["temperature_2m", "wind_speed_10m", "precipitation", "relative_humidity_2m"]
+
 	def __init__(self):
 		self.base_url = url
 
@@ -41,14 +43,13 @@ class MeteoAPIClient:
 			latitude: float,
 			longitude: float,
 			client: httpx.AsyncClient,
-			fields: List[str] = ["temperature_2m", "wind_speed_10m", "precipitation", "relative_humidity_2m"],
 	):
 		response = await client.get(
 			self.base_url,
 			params={
 				"latitude": latitude,
 				"longitude": longitude,
-				"hourly": fields,
+				"hourly": self.fields,
 				"forecast_days": 1,
 			}
 		)
