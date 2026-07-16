@@ -1,6 +1,5 @@
 from typing import AsyncGenerator
 
-import httpx
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,6 +14,6 @@ async def get_new_session() -> AsyncGenerator[AsyncSession, None]:
 
 
 async def get_meteo_service(
-        session: AsyncSession = Depends(get_new_session),
+    session: AsyncSession = Depends(get_new_session),
 ):
     return MeteoService(session)

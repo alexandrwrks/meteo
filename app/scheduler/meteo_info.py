@@ -47,7 +47,8 @@ async def update_all_forecasts():
                     await meteo_repo.delete_forecast(city.id)
                     session.add_all(conditions)
 
-                    logger.info("Successfully updated meteo forecast")
+    logger.info("Successfully updated meteo forecasts")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     asyncio.run(update_all_forecasts())

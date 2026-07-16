@@ -1,7 +1,7 @@
-from datetime import time
+from datetime import datetime
 from typing import List
 
-from sqlalchemy import select, and_, insert, update, delete, func
+from sqlalchemy import select, and_, insert, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Cities, WeatherHourlyForecast
@@ -67,7 +67,7 @@ class MeteoRepo:
 
         return result.scalar_one()
 
-    async def get_forecast(self, city_name: str, forecast: time, params: List[WeatherField]):
+    async def get_forecast(self, city_name: str, forecast: datetime, params: List[WeatherField]):
         columns = [self.FIELD_MAPPING[field] for field in params]
 
         query = (
@@ -75,8 +75,7 @@ class MeteoRepo:
             .join(Cities, Cities.id == WeatherHourlyForecast.city_id)
             .where(
                 Cities.name == city_name,
-                func.strftime("%H:%M", WeatherHourlyForecast.forecast_time)
-                == forecast.strftime("%H:%M")
+                WeatherHourlyForecast.forecast_time == forecast,
             )
         )
 
@@ -84,14 +83,18 @@ class MeteoRepo:
 
         return result.one_or_none()
 
-    async def update_forecast(self, conditions: List):
-        await self.session.execute(
-            update(WeatherHourlyForecast)
-            .values(*conditions)
-        )
-
     async def delete_forecast(self, city_id: int):
         await self.session.execute(
             delete(WeatherHourlyForecast)
             .where(WeatherHourlyForecast.city_id == city_id)
         )
+
+    async def get_city_by_name(self, city_name: str) -> Cities | None:
+        result = await self.session.execute(
+            select(Cities)
+            .where(
+                Cities.name == city_name
+            )
+        )
+
+        return result.scalar_one_or_none()

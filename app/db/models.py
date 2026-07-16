@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import func, ForeignKey, TIMESTAMP
+from sqlalchemy import TIMESTAMP, ForeignKey, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -9,7 +9,7 @@ class Base(DeclarativeBase):
 
 
 class Users(Base):
-    __tablename__ = 'users'
+    __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(nullable=False, index=True)
@@ -17,13 +17,10 @@ class Users(Base):
 
 
 class Cities(Base):
-    __tablename__ = 'cities'
+    __tablename__ = "cities"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int | None] = mapped_column(
-        ForeignKey("users.id"),
-        nullable=True
-    )
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
 
     name: Mapped[str] = mapped_column(nullable=False, unique=True, index=True)
 
@@ -31,10 +28,11 @@ class Cities(Base):
     longitude: Mapped[float] = mapped_column(nullable=False, index=True)
 
     created_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP(timezone=True),
-        server_default=func.now()
+        TIMESTAMP(timezone=True), server_default=func.now()
     )
-    updated_at: Mapped[datetime] = mapped_column(default=func.now(), onupdate=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        default=func.now(), onupdate=func.now()
+    )
 
     forecasts = relationship(
         "WeatherHourlyForecast",
@@ -42,8 +40,10 @@ class Cities(Base):
         cascade="all, delete, delete-orphan",
     )
 
+
 class WeatherHourlyForecast(Base):
-    __tablename__ = 'weather_forecast'
+    __tablename__ = "weather_forecast"
+
     id: Mapped[int] = mapped_column(primary_key=True)
 
     city_id: Mapped[int] = mapped_column(

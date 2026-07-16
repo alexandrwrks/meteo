@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = 'sqlite+aiosqlite:///weather.db'
+    DATABASE_URL: str = "sqlite+aiosqlite:///weather.db"
     ALEMBIC_DATABASE_URL: str = "sqlite:///weather.db"
 
     model_config = SettingsConfigDict(

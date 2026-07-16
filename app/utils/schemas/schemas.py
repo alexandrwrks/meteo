@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from enum import StrEnum
 
 from pydantic import BaseModel, Field
@@ -11,6 +9,11 @@ class WeatherField(StrEnum):
     wind_speed = "wind_speed"
     precipitation = "precipitation"
 
+class ResponseWeatherSchema(BaseModel):
+    temperature: float | None = None
+    humidity: float | None = None
+    wind_speed: float | None = None
+    precipitation: float | None = None
 
 class GeoParams(BaseModel):
     latitude: float = Field(..., ge=-90, le=90)
@@ -23,8 +26,10 @@ class ResponseCurrentMeteoSchema(BaseModel):
     temperature_2m: float
     wind_speed_10m: float
 
+
 class CityParams(GeoParams):
     city_name: str
+
 
 class ResponseCitySchema(BaseModel):
     id: int
@@ -32,10 +37,3 @@ class ResponseCitySchema(BaseModel):
     latitude: float
     longitude: float
     message: str = "City added successfully"
-
-class ForecastData(BaseModel):
-    forecast_time: datetime
-    temperature: float
-    wind_speed: float
-    precipitation: float
-    humidity: float
