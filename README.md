@@ -31,7 +31,11 @@ uv sync
 
 alembic upgrade head
 
-uvicorn app.main:app --port 8000 --host 127.0.0.1 --reload
+uvicorn script:app --port 8000 --host 127.0.0.1 --reload
+```
+## Альтернативный запуск
+```shell
+python script.py
 ```
 
 ## Запуск тестов
