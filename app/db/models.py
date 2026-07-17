@@ -22,7 +22,7 @@ class Cities(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True)
 
-    name: Mapped[str] = mapped_column(nullable=False, unique=True, index=True)
+    name: Mapped[str] = mapped_column(nullable=False, index=True)
 
     latitude: Mapped[float] = mapped_column(nullable=False, index=True)
     longitude: Mapped[float] = mapped_column(nullable=False, index=True)

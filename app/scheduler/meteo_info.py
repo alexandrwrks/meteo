@@ -80,8 +80,8 @@ async def get_weather_hourly_forecast(city_id: int):
                         )
                     )
 
-                    await meteo_repo.delete_forecast(city.id)
-                    session.add_all(conditions)
+                await meteo_repo.delete_forecast(city.id)
+                session.add_all(conditions)
 
     logger.info("Successfully add forecast for new city")
 

@@ -21,7 +21,6 @@ from app.utils.upgrade_time import round_to_hour, floor_to_hour
 class MeteoService:
     def __init__(self, session: AsyncSession):
         self.meteo_repo = MeteoRepo(session)
-        self.session = session
 
     async def get_current_meteo_by_coordinate(self, params: GeoParams) -> ResponseCurrentMeteoSchema:
         async with httpx.AsyncClient() as client:
@@ -52,7 +51,6 @@ class MeteoService:
         city_id = await self.meteo_repo.add_city_with_parameters(params, user_id)
 
         logger.info("Successful addition of a city")
-        await self.session.commit()
         return ResponseCitySchema(
             id=city_id,
             name=params.city_name,
